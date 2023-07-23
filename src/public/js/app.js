@@ -1,17 +1,26 @@
-const socket = new WebSocket(`ws://${window.location.host}`); //서버로의 연결
+const socket = io();
 
-socket.addEventListener("open", () => {
-    console.log("connect to server");
-});
+const welcom = document.getElementById("welcome");
+const form = welcom.querySelector("form");
+const room = document.getElementById("room");
 
-socket.addEventListener("message", (message) => {
-    console.log("Just get this", message.data, "from this server");
-});
+room.hidden = true;
 
-socket.addEventListener("close", () => {
-    console.log("Disconnect server "); //서버 끄기
-});
+let roomName = "";
 
-setTimeout( () => {
-    socket.send("hello my browser");
-}, 10000)
+function showRoom() {
+  welcom.hidden = true;
+  room.hidden = false;
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName}`;
+}
+
+function handleRoomSubmit(event) {
+  event.preventDefault();
+  const input = form.querySelector("input");
+  socket.emit("enter_room", input.value, showRoom);
+  roomName = input.value;
+  input.value = "";
+}
+
+form.addEventListener("submit", handleRoomSubmit);
